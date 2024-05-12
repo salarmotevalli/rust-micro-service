@@ -1,0 +1,30 @@
+[package]
+name = "order"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4"
+async-trait = "0.1.58"
+backtrace = "0.3.71"
+env_logger = { version = "0.11.3", default-feature = false }
+mongodb = "2.8.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0.116"
+thiserror = "1.0.59"
+tonic = "0.11"
+prost = "0.12"
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+
+[[bin]] # Bin to run the gRPC server
+name = "grpc-server"
+path = "src/grpc.rs"
+
+[[bin]] # Bin to run the HTTP server
+name = "http-server"
+path = "src/http.rs"
+
+[build-dependencies]
+tonic-build = "0.11"
