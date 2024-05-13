@@ -1,11 +1,9 @@
-use std::collections::HashMap;
 use std::error::Error;
 use std::fmt;
 
-use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use backtrace::Backtrace;
-use serde_json::Value;
 use thiserror::Error;
+use tonic::Status;
 
 /// The Standard Error for most of Merino
 pub struct HandlerError {
@@ -34,13 +32,6 @@ impl From<mongodb::bson::oid::Error> for HandlerErrorKind {
 impl From<mongodb::error::Error> for HandlerErrorKind {
     fn from(value: mongodb::error::Error) -> Self {
         HandlerErrorKind::Internal(value.to_string())
-    }
-}
-
-impl From<HandlerErrorKind> for actix_web::Error {
-    fn from(kind: HandlerErrorKind) -> Self {
-        let error: HandlerError = kind.into();
-        error.into()
     }
 }
 
@@ -77,6 +68,12 @@ where
     }
 }
 
+impl From<HandlerError> for Status {
+    fn from(value: HandlerError) -> Self {
+        Status::new(500.into(), value.kind().to_string())
+    }
+}
+
 impl fmt::Display for HandlerError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.kind.fmt(f)
@@ -97,20 +94,3 @@ impl std::fmt::Debug for HandlerError {
     }
 }
 
-impl ResponseError for HandlerError {
-    /// Convert the error to an HTTP status code.
-    fn status_code(&self) -> StatusCode {
-        match self.kind() {
-            HandlerErrorKind::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
-        }
-    }
-
-    fn error_response(&self) -> HttpResponse {
-        let mut response = HashMap::new();
-        response.insert(
-            "error".to_owned(),
-            Value::String(format!("{}", self.kind())),
-        );
-        HttpResponse::InternalServerError().json(response)
-    }
-}

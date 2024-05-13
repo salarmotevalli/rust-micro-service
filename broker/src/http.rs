@@ -2,10 +2,10 @@ use actix_web::middleware::Logger;
 use actix_web::web::{self, scope};
 use actix_web::App;
 use actix_web::HttpServer;
-use broker::presentation::http::routes::order_scoped_config;
-use env_logger::Env;
 use broker::cnf::Cnf;
 use broker::container::Container;
+use broker::presentation::http::routes::order_scoped_config;
+use env_logger::Env;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

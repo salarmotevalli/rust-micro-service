@@ -1,19 +1,13 @@
-use crate::{error::HandlerError, ordergrpc::{*, CreateOrder}};
+use crate::ordergrpc::{CreateOrder, Order, GetOrderRequest, GetOrderResponse, order_service_server, Empty, CreateOrderRequest};
 use tonic::{Request, Response, Status};
 
 #[derive(Debug, Default)]
 pub struct Service {}
 
-impl From<HandlerError> for Status {
-    fn from(value: HandlerError) -> Self {
-        Status::new(500.into(), value.kind().to_string())
-    }
-}
-
 impl From<crate::domain::entity::order::Order> for Order {
     fn from(value: crate::domain::entity::order::Order) -> Self {
         Order {
-            id: value._id.to_string(),
+            id: value.id.to_string(),
             address: value.address,
             price: value.price,
         }
@@ -28,7 +22,6 @@ impl From<CreateOrder> for crate::domain::entity::order::CreateOrder {
         }
     }
 }
-
 
 #[tonic::async_trait]
 impl order_service_server::OrderService for Service {

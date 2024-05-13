@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Order {
-    pub _id: ObjectId,
+    pub id: ObjectId,
     pub address: String,
     pub price: i32,
 }

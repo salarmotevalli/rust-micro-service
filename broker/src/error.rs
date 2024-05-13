@@ -1,10 +1,11 @@
-use std::collections::HashMap;
-use std::error::Error;
-use std::fmt;
 use actix_web::{http::StatusCode, HttpResponse, ResponseError};
 use backtrace::Backtrace;
 use serde_json::Value;
+use std::collections::HashMap;
+use std::error::Error;
+use std::fmt;
 use thiserror::Error;
+use tonic::Status;
 
 /// The Standard Error for most of Merino
 pub struct HandlerError {
@@ -46,6 +47,17 @@ impl HandlerError {
     }
 }
 
+impl From<HandlerError> for Status {
+    fn from(value: HandlerError) -> Self {
+        Status::new(500.into(), value.kind().to_string())
+    }
+}
+
+impl From<Status> for HandlerError {
+    fn from(value: Status) -> Self {
+        HandlerError::internal(Some(value.to_string()))
+    }
+}
 impl Error for HandlerError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         self.kind.source()
@@ -67,6 +79,12 @@ where
 impl fmt::Display for HandlerError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.kind.fmt(f)
+    }
+}
+
+impl From<tonic::transport::Error> for HandlerError {
+    fn from(value: tonic::transport::Error) -> Self {
+        HandlerError::internal(Some(value.to_string()))
     }
 }
 

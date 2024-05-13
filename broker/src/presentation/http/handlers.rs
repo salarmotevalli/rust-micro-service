@@ -1,4 +1,4 @@
-use super::dto::order_dto::CreateOrderDTO;
+use crate::application::dto::order_dto::CreateOrderDTO;
 use crate::{application::service::OrderServiceInterface, error::HandlerError};
 use actix_web::{get, post, web, HttpResponse};
 
@@ -7,7 +7,7 @@ pub(super) async fn create(
     service: web::Data<dyn OrderServiceInterface>,
     post_data: web::Json<CreateOrderDTO>,
 ) -> Result<HttpResponse, HandlerError> {
-    service.create_order(post_data.into_inner().into()).await?;
+    service.create_order(post_data.into_inner()).await?;
 
     Ok(HttpResponse::Created().into())
 }
